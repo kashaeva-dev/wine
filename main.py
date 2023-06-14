@@ -12,6 +12,7 @@ from settings import logger_config
 logging.config.dictConfig(logger_config)
 logger = logging.getLogger("main_logger")
 
+
 def get_age():
     foundation_year = 1920
     age = datetime.datetime.today().year - foundation_year
@@ -26,6 +27,7 @@ def get_age():
                     return f'{age} года'
                 case _:
                     return f'{age} лет'
+
 
 logger.debug(get_age())
 
@@ -48,7 +50,7 @@ pprint(wines_by_category)
 
 env = Environment(
     loader=FileSystemLoader('.'),
-    autoescape=select_autoescape(['html', 'xml'])
+    autoescape=select_autoescape(['html', 'xml']),
 )
 
 template = env.get_template('template.html')

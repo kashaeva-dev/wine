@@ -3,7 +3,7 @@ logger_config = {
     'formatters': {
         'std_format': {
             'format': '{asctime} - {levelname} - {name} - {message}',
-            'style':'{',
+            'style': '{',
             },
         },
     'handlers': {
