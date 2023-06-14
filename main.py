@@ -1,8 +1,13 @@
-from http.server import HTTPServer, SimpleHTTPRequestHandler
 import datetime
 import logging.config
-from settings import logger_config
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+from pprint import pprint
+from collections import defaultdict
+
+import pandas as pd
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+
+from settings import logger_config
 
 logging.config.dictConfig(logger_config)
 logger = logging.getLogger("main_logger")
@@ -24,6 +29,16 @@ def get_age():
 
 logger.debug(get_age())
 
+wines_df = pd.read_excel('wine2.xlsx').fillna('')
+wines_df.rename(columns={'Категория': 'category', 'Название': 'name', 'Сорт': 'type', 'Цена': 'price', 'Картинка': 'picture'}, inplace=True)
+
+wines = wines_df.to_dict(orient='records')
+wines_by_category = defaultdict(list)
+for wine in wines:
+    wines_by_category[wine['category']].append(wine)
+wines_by_category = dict(sorted(wines_by_category.items()))
+pprint(wines_by_category)
+
 env = Environment(
     loader=FileSystemLoader('.'),
     autoescape=select_autoescape(['html', 'xml'])
@@ -33,6 +48,7 @@ template = env.get_template('template.html')
 
 rendered_page = template.render(
     age=get_age(),
+    wines_by_category=wines_by_category,
 )
 
 with open('index.html', 'w', encoding="utf8") as file:
