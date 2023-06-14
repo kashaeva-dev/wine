@@ -10,13 +10,17 @@ logger = logging.getLogger("main_logger")
 def get_age():
     foundation_year = 1920
     age = datetime.datetime.today().year - foundation_year
-    match age % 10:
-        case 1:
-            return f'{age} год'
-        case 2 | 3 | 4:
-            return f'{age} года'
-        case _:
+    match age % 100:
+        case 11 | 12 | 13 | 14:
             return f'{age} лет'
+        case _:
+            match age % 10:
+                case 1:
+                    return f'{age} год'
+                case 2 | 3 | 4:
+                    return f'{age} года'
+                case _:
+                    return f'{age} лет'
 
 logger.debug(get_age())
 
