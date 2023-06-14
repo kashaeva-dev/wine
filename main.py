@@ -1,8 +1,8 @@
 import datetime
 import logging.config
+from collections import defaultdict
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pprint import pprint
-from collections import defaultdict
 
 import pandas as pd
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -29,8 +29,15 @@ def get_age():
 
 logger.debug(get_age())
 
-wines_df = pd.read_excel('wine2.xlsx').fillna('')
-wines_df.rename(columns={'Категория': 'category', 'Название': 'name', 'Сорт': 'type', 'Цена': 'price', 'Картинка': 'picture'}, inplace=True)
+wines_df = pd.read_excel('wine.xlsx').fillna('')
+wines_df.rename(columns={
+    'Категория': 'category',
+    'Название': 'name',
+    'Сорт': 'type',
+    'Цена': 'price',
+    'Картинка': 'picture',
+    'Акция': 'promo',
+    }, inplace=True)
 
 wines = wines_df.to_dict(orient='records')
 wines_by_category = defaultdict(list)
@@ -53,7 +60,6 @@ rendered_page = template.render(
 
 with open('index.html', 'w', encoding="utf8") as file:
     file.write(rendered_page)
-
 
 server = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
 server.serve_forever()
