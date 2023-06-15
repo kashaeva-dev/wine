@@ -56,7 +56,7 @@ def create_parser():
                     'site to sell wines. It shows the information about you wines.'
     )
     parser.add_argument(
-        'path',
+        '-p', '--path',
         help='You can specify the path to your data file',
         default='wine.xlsx',
     )
