@@ -9,7 +9,6 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from settings import logger_config
 
-logging.config.dictConfig(logger_config)
 logger = logging.getLogger("main_logger")
 
 
@@ -29,39 +28,47 @@ def get_age():
                     return f'{age} лет'
 
 
-logger.debug(get_age())
+def get_wines(filepath):
+    wines_df = pd.read_excel(filepath).fillna('')
+    wines_df.rename(columns={
+        'Категория': 'category',
+        'Название': 'name',
+        'Сорт': 'type',
+        'Цена': 'price',
+        'Картинка': 'picture',
+        'Акция': 'promo',
+        }, inplace=True)
 
-wines_df = pd.read_excel('wine.xlsx').fillna('')
-wines_df.rename(columns={
-    'Категория': 'category',
-    'Название': 'name',
-    'Сорт': 'type',
-    'Цена': 'price',
-    'Картинка': 'picture',
-    'Акция': 'promo',
-    }, inplace=True)
+    wines = wines_df.to_dict(orient='records')
+    wines_by_category = defaultdict(list)
+    for wine in wines:
+        wines_by_category[wine['category']].append(wine)
+    wines_by_category = dict(sorted(wines_by_category.items()))
 
-wines = wines_df.to_dict(orient='records')
-wines_by_category = defaultdict(list)
-for wine in wines:
-    wines_by_category[wine['category']].append(wine)
-wines_by_category = dict(sorted(wines_by_category.items()))
-pprint(wines_by_category)
+    return wines_by_category
 
-env = Environment(
-    loader=FileSystemLoader('.'),
-    autoescape=select_autoescape(['html', 'xml']),
-)
 
-template = env.get_template('template.html')
+def main():
+    logging.config.dictConfig(logger_config)
+    logger.debug(get_age())
 
-rendered_page = template.render(
-    age=get_age(),
-    wines_by_category=wines_by_category,
-)
+    env = Environment(
+        loader=FileSystemLoader('.'),
+        autoescape=select_autoescape(['html', 'xml']),
+    )
 
-with open('index.html', 'w', encoding="utf8") as file:
-    file.write(rendered_page)
+    template = env.get_template('template.html')
 
-server = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
-server.serve_forever()
+    rendered_page = template.render(
+        age=get_age(),
+        wines_by_category=get_wines('wine.xlsx'),
+    )
+
+    with open('index.html', 'w', encoding="utf8") as file:
+        file.write(rendered_page)
+
+    server = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
+    server.serve_forever()
+
+if __name__=="__main__":
+    main()
