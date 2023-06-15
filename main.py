@@ -1,4 +1,5 @@
 import datetime
+import argparse
 import logging.config
 from collections import defaultdict
 from http.server import HTTPServer, SimpleHTTPRequestHandler
@@ -48,9 +49,25 @@ def get_wines(filepath):
     return wines_by_category
 
 
+def create_parser():
+    parser = argparse.ArgumentParser(
+        prog="Site about new Russian wine",
+        description='The script allows you to start '
+                    'site to sell wines. It shows the information about you wines.'
+    )
+    parser.add_argument(
+        'path',
+        help='You can specify the path to your data file',
+        default='wine.xlsx',
+    )
+    return parser
+
+
 def main():
     logging.config.dictConfig(logger_config)
-    logger.debug(get_age())
+
+    parser = create_parser()
+    user_input = parser.parse_args()
 
     env = Environment(
         loader=FileSystemLoader('.'),
@@ -61,7 +78,7 @@ def main():
 
     rendered_page = template.render(
         age=get_age(),
-        wines_by_category=get_wines('wine.xlsx'),
+        wines_by_category=get_wines(user_input.path),
     )
 
     with open('index.html', 'w', encoding="utf8") as file:
