@@ -67,7 +67,7 @@ def main():
     logging.config.dictConfig(logger_config)
 
     parser = create_parser()
-    user_input = parser.parse_args()
+    args = parser.parse_args()
 
     env = Environment(
         loader=FileSystemLoader('.'),
@@ -78,7 +78,7 @@ def main():
 
     rendered_page = template.render(
         age=get_age(),
-        wines_by_category=get_wines(user_input.path),
+        wines_by_category=get_wines(args.path),
     )
 
     with open('index.html', 'w', encoding="utf8") as file:
